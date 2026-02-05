@@ -1,0 +1,43 @@
+spring:
+  application:
+    name:  bestorder
+
+  profiles:
+    active:  dev
+
+  datasource:
+    driver-class-name:  com.mysql.cj.jdbc.Driver
+    url:  jdbc:mysql://localhost:3306/bestorder?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    username:  root
+    password:  yourpassword
+    hikari:
+      maximum-pool-size:  10
+      minimum-idle: 5
+      connection-timeout: 30000
+
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: none  # DB는 이미 만들었으므로 none
+    properties:
+      hibernate:
+        format_sql: true
+        #dialect: org.hibernate.dialect.MySQL8Dialect
+
+mybatis:
+  mapper-locations:  classpath:mapper/**/*.xml
+  type-aliases-package:  com.unki11.bestorder.domain
+  configuration:
+    map-underscore-to-camel-case:  true
+    log-impl:  org.apache.ibatis.logging.stdout.StdOutImpl
+
+logging:
+  level:
+    # MyBatis가 어떤 경로에서 어떤 파일을 뒤지는지 전부 다 나옵니다.
+    org.mybatis: TRACE
+    org.springframework.jdbc: DEBUG
+    com.unki11.bestorder: TRACE
+
+jwt:
+  secret: your-super-secret-key-at-least-256-bits-long-for-security
+  expiration: 3600000  # 1시간 (밀리초)
