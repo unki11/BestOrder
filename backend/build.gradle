@@ -31,7 +31,7 @@ dependencies {
 
     // Database (JPA & MyBatis)
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.3'
+    //implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.3'
     runtimeOnly 'com.mysql:mysql-connector-j'
     runtimeOnly 'com.h2database:h2' // 로컬 테스트 및 런타임용
 
@@ -50,7 +50,7 @@ dependencies {
     // Test (의존성 명칭 수정)
     testImplementation 'org.springframework.boot:spring-boot-starter-test' // 통합 테스트 팩
     testImplementation 'org.springframework.security:spring-security-test'
-    testImplementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter-test:3.0.3'
+    //testImplementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter-test:3.0.3'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
     testCompileOnly 'org.projectlombok:lombok'
