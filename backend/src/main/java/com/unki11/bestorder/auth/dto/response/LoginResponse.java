@@ -1,4 +1,4 @@
-package com.unki11.bestorder.dto.response;
+package com.unki11.bestorder.auth.dto.response;
 
 import lombok.Builder;
 import lombok.Data;

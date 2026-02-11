@@ -1,9 +1,9 @@
-package com.unki11.bestorder.service;
+package com.unki11.bestorder.auth.service;
 
-import com.unki11.bestorder.domain.User;
-import com.unki11.bestorder.dto.request.LoginRequest;
-import com.unki11.bestorder.dto.response.LoginResponse;
-import com.unki11.bestorder.repository.UserRepository;
+import com.unki11.bestorder.auth.domain.User;
+import com.unki11.bestorder.auth.dto.request.LoginRequest;
+import com.unki11.bestorder.auth.dto.response.LoginResponse;
+import com.unki11.bestorder.auth.repository.UserRepository;
 import com.unki11.bestorder.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -28,7 +28,7 @@ public class AuthService {
         }
 
         // 3. 활성화 여부 체크
-        if (!user.getIsActive()) {
+        if (!user.isActive()) {
             throw new RuntimeException("비활성화된 계정입니다");
         }
 

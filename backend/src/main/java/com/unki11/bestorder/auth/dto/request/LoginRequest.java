@@ -1,4 +1,4 @@
-package com.unki11.bestorder.dto.request;
+package com.unki11.bestorder.auth.dto.request;
 
 import lombok.Data;
 import jakarta.validation.constraints.Email;
