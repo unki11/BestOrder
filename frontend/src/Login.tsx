@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import axios, { AxiosError } from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import './App.css';
+import axios from 'axios';
 
 // 1. API 응답 데이터에 대한 인터페이스 정의
 interface LoginResponse {
@@ -15,63 +15,49 @@ interface ErrorResponse {
   message: string;
 }
 
-const Login: React.FC = () => {
-  // 상태 타입 정의 (string으로 명시하거나 추론되도록 둠)
-  const [email, setEmail] = useState<string>('');
-  const [password, setPassword] = useState<string>('');
-  
-  const navigate = useNavigate();
+function Login() {
+  //const [message, setMessage] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [message, setData] = useState({ message: '', status: '' });
+  const [user, setUser] = useState<LoginResponse | null>(null);
 
-  // 3. 이벤트 타입 정의: React.FormEvent
-  const handleLogin = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
-    e.preventDefault();
-
-    try {
-      // axios generic에 응답 데이터 인터페이스 적용
-      const response = await axios.post<LoginResponse>('http://localhost:8080/api/auth/login', {
-        email,
-        password,
+  useEffect(() => {
+    
+    // Axios 사용
+    axios.get<LoginResponse>('http://localhost:8080/api/login')
+      .then(response => {
+        // fetch와 달리 response.data에 실제 값이 담깁니다.
+        //setData(response.data.name? { message: `환영합니다, ${response.data.name}님!`, status: 'success' } : { message: '로그인에 실패했습니다.', status: 'error' });
+        setUser(response.data);
+        console.log(response);
+        setLoading(false)
+      })
+      .catch(error => {
+        console.error("데이터를 가져오는 중 에러 발생!", error);
+        setLoading(false);
       });
+  }, []);
 
-      const { token, name, role } = response.data;
-
-      // 로컬 스토리지 저장
-      localStorage.setItem('token', token);
-      localStorage.setItem('userName', name);
-      localStorage.setItem('userRole', role);
-
-      alert('로그인 성공!');
-      navigate('/main');
-
-    } catch (error) {
-      // 4. Axios 에러 핸들링
-      const axiosError = error as AxiosError<ErrorResponse>;
-      const errorMessage = axiosError.response?.data?.message || '로그인 중 오류가 발생했습니다.';
-      
-      alert('로그인 실패: ' + errorMessage);
-    }
-  };
-
-  return (
-    <div className="container">
-      <h2>로그인</h2>
-      <form onSubmit={handleLogin}>
-        <input
-          type="email"
-          placeholder="이메일"
-          value={email}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
-          required
-        />
-        <input
-          type="password"
-          placeholder="비밀번호"
-          value={password}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
-          required
-        />
-        <button type="submit">로그인</button>
-      </form>
+  return (  
+    <div className="App">
+      <h1>BestOrder 프로젝트</h1>
+      {loading ? (
+        <p>로딩중...</p>
+      ) : (
+        <div>
+          <h2>로그인 성공</h2>
+          <p style={{ 
+            fontSize: '24px', 
+            color: 'green', 
+            fontWeight: 'bold' 
+          }}>
+            <li>{message.message}</li>
+            <li>유저이름</li><li>{user?.name}</li>
+            <li>역할</li><li>{user?.role}</li>
+            <li>토큰</li><li>{user?.token}</li>
+          </p>
+        </div>
+      )}
     </div>
   );
 }

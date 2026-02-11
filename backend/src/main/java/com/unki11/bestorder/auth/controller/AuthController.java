@@ -1,8 +1,8 @@
-package com.unki11.bestorder.controller;
+package com.unki11.bestorder.auth.controller;
 
-import com.unki11.bestorder.dto.request.LoginRequest;
-import com.unki11.bestorder.dto.response.LoginResponse;
-import com.unki11.bestorder.service.AuthService;
+import com.unki11.bestorder.auth.dto.request.LoginRequest;
+import com.unki11.bestorder.auth.dto.response.LoginResponse;
+import com.unki11.bestorder.auth.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

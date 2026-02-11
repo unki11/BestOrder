@@ -6,7 +6,10 @@ const Layout = () => {
       <nav>
         {/* a 태그 대신 Link 사용 (SPA의 핵심) */}
         <Link to="/">홈</Link>
+        <br/><br/>
         <Link to="/Test">테스트</Link>
+        <br/><br/>
+        <Link to="/Login">로그인</Link>
       </nav>
       <hr />
       <main>

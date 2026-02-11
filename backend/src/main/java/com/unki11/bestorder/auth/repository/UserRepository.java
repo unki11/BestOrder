@@ -1,6 +1,6 @@
-package com.unki11.bestorder.repository;
+package com.unki11.bestorder.auth.repository;
 
-import com.unki11.bestorder.domain.User;
+import com.unki11.bestorder.auth.domain.User;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import java.util.Optional;

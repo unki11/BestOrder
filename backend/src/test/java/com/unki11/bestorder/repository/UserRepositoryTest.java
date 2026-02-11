@@ -1,6 +1,7 @@
 package com.unki11.bestorder.repository;
 
-import com.unki11.bestorder.domain.User;
+import com.unki11.bestorder.auth.domain.User;
+import com.unki11.bestorder.auth.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

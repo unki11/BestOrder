@@ -55,6 +55,8 @@ dependencies {
 
     testCompileOnly 'org.projectlombok:lombok'
     testAnnotationProcessor 'org.projectlombok:lombok'
+
+    developmentOnly 'org.springframework.boot:spring-boot-devtools' // 수정시 자동 실행
 }
 
 tasks.named('test') {
