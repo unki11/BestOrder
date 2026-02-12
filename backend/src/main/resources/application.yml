@@ -9,7 +9,7 @@ spring:
     driver-class-name:  com.mysql.cj.jdbc.Driver
     url:  jdbc:mysql://localhost:3306/bestorder?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8
     username:  root
-    password:  password
+    password:  ${JWT_SECRET:password} #입력
 
     hikari:
       maximum-pool-size:  10
@@ -40,5 +40,5 @@ logging:
     com.unki11.bestorder: TRACE
 
 jwt:
-  secret: your-super-secret-key-at-least-256-bits-long-for-security
+  secret: ${JWT_SECRET:temporary_key_for_build} #입력
   expiration: 3600000  # 1시간 (밀리초)

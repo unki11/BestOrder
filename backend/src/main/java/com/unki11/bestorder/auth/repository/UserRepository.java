@@ -10,6 +10,8 @@ public interface UserRepository {
     // 이메일로 사용자 찾기
     Optional<User> findByEmail(@Param("email") String email);
 
+    Optional<User> findByUsername(@Param("username") String username);
+
     // 사용자 생성
     void insert(User user);
 
