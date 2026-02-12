@@ -26,15 +26,13 @@ public class HelloWorldController {
         response.put("status", "success");
 
         LoginRequest request = new LoginRequest();
-        request.setEmail("admin@bestorder.com");
 
-        User user = userRepository.findByEmail(request.getEmail())
+        User user = userRepository.findByEmail("aa")
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다"));
         return LoginResponse.builder()
                 .token("dummy-token-12345") // 아직 토큰 기능이 없다면 임시값
                 .name(user.getName())
                 .role(user.getRole())
-                .message("백엔드에서 성공적으로 로그인 정보를 가져왔습니다.")
                 .build();
     }
 }
