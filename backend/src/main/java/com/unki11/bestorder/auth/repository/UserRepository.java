@@ -13,8 +13,12 @@ public interface UserRepository {
     Optional<User> findByUsername(@Param("username") String username);
 
     // 사용자 생성
-    void insert(User user);
+    int save(User user);
 
     // ID로 사용자 찾기
     Optional<User> findById(@Param("userId") Long userId);
+
+    boolean existsByUsername(@Param("username")String username);
+
+    boolean existsByEmail(@Param("email")String email);
 }

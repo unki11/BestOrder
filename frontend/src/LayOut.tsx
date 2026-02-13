@@ -10,6 +10,8 @@ const Layout = () => {
         <Link to="/Test">테스트</Link>
         <br/><br/>
         <Link to="/Login">로그인</Link>
+        <br/><br/>
+        <Link to="/Signup">회원가입</Link>
       </nav>
       <hr />
       <main>

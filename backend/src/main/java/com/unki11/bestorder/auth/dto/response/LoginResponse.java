@@ -1,5 +1,6 @@
 package com.unki11.bestorder.auth.dto.response;
 
+import com.unki11.bestorder.auth.Enum.UserRole;
 import lombok.*;
 
 @Data
@@ -10,6 +11,6 @@ public class LoginResponse {
     private String token;
     private Long userId;
     private String name;
-    private String role;
+    private UserRole role;
     private String username;
 }
