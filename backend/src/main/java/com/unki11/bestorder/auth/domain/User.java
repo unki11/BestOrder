@@ -1,5 +1,6 @@
 package com.unki11.bestorder.auth.domain;
 
+import com.unki11.bestorder.auth.Enum.UserRole;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -38,7 +39,7 @@ public class User {
     private String phone;
 
     @Column(name = "`role`", length = 20) // role은 SQL 예약어인 경우가 많아 백틱이나 따옴표 처리가 안전합니다.
-    private String role;
+    private UserRole role;
 
     @Builder.Default
     private boolean isActive = true;

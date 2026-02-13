@@ -6,8 +6,8 @@
 
     <resultMap id="UserResultMap" type="com.unki11.bestorder.auth.domain.User">
         <id property="userId" column="user_id"/>
-        <result property="username" column="username"/>
         <result property="email" column="email"/>
+        <result property="username" column="username"/>
         <result property="password" column="password"/>
         <result property="name" column="name"/>
         <result property="phone" column="phone"/>
@@ -29,9 +29,29 @@
         SELECT * FROM users WHERE user_id = #{userId}
     </select>
 
-    <insert id="insert" useGeneratedKeys="true" keyProperty="userId">
-        INSERT INTO users (email, password, name, phone, role, is_active)
-        VALUES (#{email}, #{password}, #{name}, #{phone}, #{role}, #{isActive})
+    <select id="isUsernameDuplicate" resultMap="UserResultMap">
+        SELECT * FROM users WHERE user_id = #{userId}
+    </select>
+
+    <select id="existsByUsername" parameterType="string" resultType="boolean">
+        SELECT EXISTS (
+        SELECT 1
+        FROM users
+        WHERE username = #{username}
+        )
+    </select>
+
+    <select id="existsByEmail" parameterType="string" resultType="boolean">
+        SELECT EXISTS (
+        SELECT 1
+        FROM users
+        WHERE email = #{email}
+        )
+    </select>
+
+    <insert id="save" useGeneratedKeys="true" keyProperty="userId">
+        INSERT INTO users (email, username, password, name, phone, role, is_active)
+        VALUES (#{email}, #{username}, #{password}, #{name}, #{phone}, #{role}, #{isActive})
     </insert>
 
 </mapper>
