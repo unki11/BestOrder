@@ -23,8 +23,6 @@ public class LoginController {
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
 
-        System.out.println("request : " + request);
-
         LoginResponse response = authService.login(request);
         return ResponseEntity.ok(response);
     }
@@ -54,6 +52,7 @@ public class LoginController {
     @PostMapping("/join")
     public ResponseEntity<Void> join(@RequestBody UserJoinRequest request) {
         authService.join(request);
+
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.unki11.bestorder.store.repository.StoreRepository">
+
+    <resultMap id="StoreResultMap" type="com.unki11.bestorder.store.domain.Store">
+        <id property="storeId" column="store_id" />
+        <result property="ownerId" column="owner_id" />
+        <result property="storeName" column="store_name" />
+        <result property="zipCode" column="zip_code" />
+        <result property="address" column="address" />
+        <result property="phone" column="phone" />
+        <result property="description" column="description" />
+        <result property="businessHours" column="business_hours" />
+        <result property="isOpen" column="is_open" />
+        <result property="useYn" column="use_yn" />
+        <result property="createdAt" column="created_at" />
+        <result property="createdUser" column="created_user" />
+        <result property="updatedAt" column="updated_at" />
+        <result property="updatedUser" column="updated_user" />
+    </resultMap>
+
+    <sql id="storeColumns">
+        store_id, owner_id, store_name, zip_code, address,
+        phone, description, business_hours, is_open, use_yn,
+        created_at, created_user, updated_at, updated_user
+    </sql>
+
+    <insert id="insertStore" parameterType="com.unki11.bestorder.store.domain.Store" useGeneratedKeys="true" keyProperty="storeId">
+        INSERT INTO stores (
+        owner_id, store_name, zip_code, address,
+        phone, description, business_hours, is_open, use_yn,
+        created_at, created_user
+        ) VALUES (
+        1, #{storeName}, #{zipCode},  #{address},
+        #{phone}, #{description}, #{businessHours}, 0, 'Y',
+        NOW(), #{createdUser}
+        )
+    </insert>
+
+    <update id="updateStore" parameterType="com.unki11.bestorder.store.domain.Store">
+        UPDATE stores
+        <set>
+            <if test="storeName != null">store_name = #{storeName},</if>
+            <if test="zipCode != null">zip_code = #{zipCode},</if>
+            <if test="address != null">address = #{address},</if>
+            <if test="phone != null">phone = #{phone},</if>
+            <if test="isOpen != null">is_open = #{isOpen},</if>
+            <if test="useYn != null">use_yn = #{useYn},</if>
+            updated_at = NOW(),
+            updated_user = #{updatedUser}
+        </set>
+        WHERE store_id = #{storeId}
+    </update>
+
+    <select id="selectStoreById" parameterType="long" resultMap="StoreResultMap">
+        SELECT
+        <include refid="storeColumns" />
+        FROM stores
+        WHERE store_id = #{storeId}
+    </select>
+
+</mapper>

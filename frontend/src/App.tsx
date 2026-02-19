@@ -3,6 +3,9 @@ import Test from './Test.tsx';
 import LayOut from './LayOut.tsx';
 import Login from './Login.tsx';
 import Signup from './Singup.tsx';
+import StoreEdit from './StoreEdit.tsx';
+import StoreRegister from './StoreRegister.tsx';
+import StoreDetail from './StoreDetail.tsx';
 import './App.css';
 
 function App() {
@@ -14,6 +17,9 @@ function App() {
           <Route path="/Test" element={<Test />}/>
           <Route path="/Login" element={<Login />}/>
           <Route path="/Signup" element={<Signup />}/>
+          <Route path="/StoreEdit/:storeId" element={<StoreEdit />} />
+          <Route path="/StoreRegister" element={<StoreRegister />}/>
+          <Route path="/Store/:storeId" element={<StoreDetail />} />
         </Route>
       </Routes>
     </BrowserRouter>
