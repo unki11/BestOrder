@@ -8,7 +8,6 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 //@SpringBootApplication(exclude = {DataSourceAutoConfiguration.class})
 @EnableJpaAuditing
 @SpringBootApplication
-@MapperScan("com.unki11.bestorder.auth.repository")
 public class BestOrderApplication {
 
     public static void main(String[] args) {

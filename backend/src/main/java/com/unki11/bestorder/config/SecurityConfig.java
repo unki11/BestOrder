@@ -32,6 +32,7 @@ public class SecurityConfig {
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll() // 로그인은 인증 불필요
+                        .requestMatchers("/api/store/**").permitAll() // 고객 주문은 인증 불필요
                         .requestMatchers("/api/**").permitAll() // 고객 주문은 인증 불필요
                         .anyRequest().authenticated() // 나머지는 인증 필요
                 );
