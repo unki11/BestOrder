@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.unki11.bestorder.table.repository.TableRepository">
+
+    <resultMap id="TableResultMap" type="com.unki11.bestorder.table.domain.Table">
+        <id property="tableId" column="table_id" />
+        <result property="storeId" column="store_id" />
+        <result property="tableGrpId" column="table_grp_id" />
+        <result property="tableNumber" column="table_number" />
+        <result property="tableName" column="table_name" />
+        <result property="tablePosition" column="table_position" />
+        <result property="capacity" column="capacity" />
+        <result property="status" column="status" />
+        <result property="useYn" column="use_yn" />
+        <result property="qrToken" column="qr_token" />
+        <result property="qrGeneratedAt" column="qr_generated_at" />
+        <result property="createdAt" column="created_at" />
+        <result property="createdUser" column="created_user" />
+        <result property="updatedAt" column="updated_at" />
+        <result property="updatedUser" column="updated_user" />
+    </resultMap>
+
+    <resultMap id="TableGrpResultMap" type="com.unki11.bestorder.table.domain.TableGrp">
+        <id property="tableGrpId" column="table_grp_id" />
+        <result property="storeId" column="store_id" />
+        <result property="tableGrpName" column="table_grp_name" />
+        <result property="tableGrpPosition" column="table_grp_position" />
+        <result property="useYn" column="use_yn" />
+        <result property="createdAt" column="created_at" />
+        <result property="createdUser" column="created_user" />
+        <result property="updatedAt" column="updated_at" />
+        <result property="updatedUser" column="updated_user" />
+        <collection property="tableList" resultMap="TableResultMap" />
+    </resultMap>
+
+    <select id="selectTableListByStoreIdWithGrp" parameterType="long" resultMap="TableGrpResultMap">
+        SELECT
+        g.table_grp_id, g.store_id, g.table_grp_name, g.table_grp_position, g.use_yn,
+        t.table_id, t.table_number, t.table_name, t.table_position,
+        t.capacity, t.status, t.use_yn AS table_use_yn, t.qr_token
+        FROM table_grp g
+        LEFT JOIN tables t ON g.table_grp_id = t.table_grp_id AND t.use_yn = 'Y'
+        WHERE g.store_id = #{storeId}
+        AND g.use_yn = 'Y'
+        ORDER BY g.table_grp_position ASC, t.table_position ASC, t.table_number ASC
+    </select>
+
+    <insert id="upsertTableGrp" parameterType="com.unki11.bestorder.table.domain.TableGrp" useGeneratedKeys="true" keyProperty="tableGrpId">
+        INSERT INTO table_grp (
+        table_grp_id, store_id, table_grp_name, table_grp_position, use_yn, created_at, created_user
+        ) VALUES (
+        #{tableGrpId}, #{storeId}, #{tableGrpName}, #{tableGrpPosition}, 'Y', NOW(), #{createdUser}
+        )
+        ON DUPLICATE KEY UPDATE
+        table_grp_name = VALUES(table_grp_name),
+        table_grp_position = VALUES(table_grp_position),
+        use_yn = 'Y',
+        updated_at = NOW(),
+        updated_user = #{updatedUser}
+    </insert>
+
+    <insert id="upsertTable" parameterType="com.unki11.bestorder.table.domain.Table" useGeneratedKeys="true" keyProperty="tableId">
+        INSERT INTO tables (
+        table_id, store_id, table_grp_id, table_number, table_name,
+        table_position, capacity, status, use_yn, created_at, created_user
+        ) VALUES (
+        #{tableId}, #{storeId}, #{tableGrpId}, #{tableNumber}, #{tableName},
+        #{tablePosition}, #{capacity}, IFNULL(#{status}, 'EMPTY'), 'Y', NOW(), #{createdUser}
+        )
+        ON DUPLICATE KEY UPDATE
+        table_grp_id = VALUES(table_grp_id),
+        table_number = VALUES(table_number),
+        table_name = VALUES(table_name),
+        table_position = VALUES(table_position),
+        capacity = VALUES(capacity),
+        use_yn = 'Y',
+        updated_at = NOW(),
+        updated_user = #{updatedUser}
+    </insert>
+
+    <update id="updateTableStatus">
+        UPDATE tables
+        SET status = #{status},
+        updated_at = NOW(),
+        updated_user = #{updatedUser}
+        WHERE table_id = #{tableId}
+        AND use_yn = 'Y'
+    </update>
+
+    <update id="deleteTableGrp">
+        UPDATE table_grp SET use_yn = 'N', updated_at = NOW(), updated_user = #{updatedUser}
+        WHERE table_grp_id = #{tableGrpId}
+    </update>
+
+    <update id="deleteTable">
+        UPDATE tables SET use_yn = 'N', updated_at = NOW(), updated_user = #{updatedUser}
+        WHERE table_id = #{tableId}
+    </update>
+
+</mapper>

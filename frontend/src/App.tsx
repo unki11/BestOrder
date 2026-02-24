@@ -6,6 +6,7 @@ import Signup from './Singup.tsx';
 import StoreEdit from './StoreEdit.tsx';
 import StoreRegister from './StoreRegister.tsx';
 import StoreDetail from './StoreDetail.tsx';
+import TableManagement from './TableManagement.tsx';
 import './App.css';
 
 function App() {
@@ -20,6 +21,7 @@ function App() {
           <Route path="/StoreEdit/:storeId" element={<StoreEdit />} />
           <Route path="/StoreRegister" element={<StoreRegister />}/>
           <Route path="/Store/:storeId" element={<StoreDetail />} />
+          <Route path="/TableManagement/:storeId" element={<TableManagement />} />
         </Route>
       </Routes>
     </BrowserRouter>
