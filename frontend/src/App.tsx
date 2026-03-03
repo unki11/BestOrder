@@ -7,6 +7,7 @@ import StoreEdit from './StoreEdit.tsx';
 import StoreRegister from './StoreRegister.tsx';
 import StoreDetail from './StoreDetail.tsx';
 import TableManagement from './TableManagement.tsx';
+import MenuManagement from './MenuManagement.tsx';
 import './App.css';
 
 function App() {
@@ -22,6 +23,7 @@ function App() {
           <Route path="/StoreRegister" element={<StoreRegister />}/>
           <Route path="/Store/:storeId" element={<StoreDetail />} />
           <Route path="/TableManagement/:storeId" element={<TableManagement />} />
+          <Route path="/MenuManagement/:storeId" element={<MenuManagement />} />
         </Route>
       </Routes>
     </BrowserRouter>
