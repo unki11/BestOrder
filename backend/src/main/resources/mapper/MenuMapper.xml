@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.unki11.bestorder.menu.repository.MenuRepository">
+
+    <resultMap id="MenuGrpMap" type="com.unki11.bestorder.menu.domain.MenuGrp">
+        <id property="menuGrpId" column="menu_grp_id" />
+        <result property="storeId" column="store_id" />
+        <result property="menuGrpName" column="menu_grp_name" />
+        <result property="useYn" column="use_yn" />
+        <result property="menuGrpPosition" column="menu_grp_position" />
+        <result property="createdAt" column="created_at" />
+        <result property="createdUser" column="created_user" />
+
+        <collection property="menuList" ofType="com.unki11.bestorder.menu.domain.Menu">
+            <id property="menuId" column="menu_id" />
+            <result property="menuGrpId" column="menu_grp_id" />
+            <result property="menuName" column="menu_name" />
+            <result property="price" column="price" />
+            <result property="description" column="description" />
+            <result property="imageUrl" column="image_url" />
+            <result property="isAvailable" column="is_available" />
+            <result property="useYn" column="use_yn" />
+            <result property="displayOrder" column="display_order" />
+        </collection>
+    </resultMap>
+
+    <select id="selectMenuListByStoreIdWithGrp" parameterType="long" resultMap="MenuGrpMap">
+        SELECT
+        g.menu_grp_id, g.store_id, g.menu_grp_name, g.use_yn, g.menu_grp_position, g.created_at,
+        m.menu_id, m.menu_grp_id, m.menu_name, m.price, m.description, m.image_url, m.is_available, m.use_yn, m.display_order
+        FROM menu_grp g
+        LEFT JOIN menus m ON g.menu_grp_id = m.menu_grp_id AND m.use_yn = 'Y'
+        WHERE g.store_id = #{storeId}
+        AND g.use_yn = 'Y'
+        ORDER BY g.menu_grp_position ASC, m.display_order ASC
+    </select>
+
+    <select id="selectMenuGrpById" parameterType="long" resultType="com.unki11.bestorder.menu.domain.MenuGrp">
+        SELECT * FROM menu_grp WHERE menu_grp_id = #{menuGrpId}
+    </select>
+
+    <select id="selectMenuById" parameterType="long" resultType="com.unki11.bestorder.menu.domain.Menu">
+        SELECT * FROM menus WHERE menu_id = #{menuId}
+    </select>
+
+    <insert id="upsertMenuGrp" parameterType="com.unki11.bestorder.menu.domain.MenuGrp">
+        INSERT INTO menu_grp (
+        menu_grp_id, store_id, menu_grp_name, use_yn, menu_grp_position, created_user
+        ) VALUES (
+        #{menuGrpId}, #{storeId}, #{menuGrpName}, #{useYn}, #{menuGrpPosition}, #{createdUser}
+        )
+        ON DUPLICATE KEY UPDATE
+        menu_grp_name = VALUES(menu_grp_name),
+        use_yn = VALUES(use_yn),
+        menu_grp_position = VALUES(menu_grp_position),
+        updated_at = CURRENT_TIMESTAMP,
+        updated_user = #{updatedUser}
+    </insert>
+
+    <insert id="upsertMenu" parameterType="com.unki11.bestorder.menu.domain.Menu">
+        INSERT INTO menus (
+        menu_id, store_id, menu_grp_id, menu_name, price,
+        description, image_url, is_available, use_yn, display_order
+        ) VALUES (
+        #{menuId}, #{storeId}, #{menuGrpId}, #{menuName}, #{price},
+        #{description}, #{imageUrl}, #{isAvailable}, #{useYn}, #{displayOrder}
+        )
+        ON DUPLICATE KEY UPDATE
+        menu_grp_id = VALUES(menu_grp_id),
+        menu_name = VALUES(menu_name),
+        price = VALUES(price),
+        description = VALUES(description),
+        image_url = VALUES(image_url),
+        is_available = VALUES(is_available),
+        use_yn = VALUES(use_yn),
+        display_order = VALUES(display_order),
+        updated_at = CURRENT_TIMESTAMP
+    </insert>
+
+    <update id="updateMenuAvailability">
+        UPDATE menus
+        SET is_available = #{isAvailable},
+        updated_at = CURRENT_TIMESTAMP
+        WHERE menu_id = #{menuId}
+    </update>
+
+    <delete id="deleteMenuGrp">
+        DELETE FROM menu_grp WHERE menu_grp_id = #{menuGrpId}
+    </delete>
+
+    <update id="deleteMenu" >
+        UPDATE menus
+        SET use_yn = 'N',
+        updated_at = CURRENT_TIMESTAMP
+        WHERE menu_id = #{menuId}
+    </update>
+
+</mapper>
