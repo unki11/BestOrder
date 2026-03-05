@@ -8,6 +8,7 @@ import StoreRegister from './StoreRegister.tsx';
 import StoreDetail from './StoreDetail.tsx';
 import TableManagement from './TableManagement.tsx';
 import MenuManagement from './MenuManagement.tsx';
+import Order from './Order.tsx';
 import './App.css';
 
 function App() {
@@ -24,6 +25,7 @@ function App() {
           <Route path="/Store/:storeId" element={<StoreDetail />} />
           <Route path="/TableManagement/:storeId" element={<TableManagement />} />
           <Route path="/MenuManagement/:storeId" element={<MenuManagement />} />
+          <Route path="/Order/:storeId" element={<Order />} />
         </Route>
       </Routes>
     </BrowserRouter>
