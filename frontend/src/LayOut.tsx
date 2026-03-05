@@ -14,6 +14,7 @@ const Layout = () => {
         <Link to="/Store/1">매장 상세</Link><br/>
         <Link to="/TableManagement/1">테이블 관리</Link><br/>
         <Link to="/MenuManagement/1">메뉴 관리</Link><br/>
+        <Link to="/Order/1">주문 관리</Link><br/>
       </nav>
       <hr />
       <main>

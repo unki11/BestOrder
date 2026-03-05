@@ -11,7 +11,7 @@
         <result property="createdAt" column="created_at" />
         <result property="createdUser" column="created_user" />
 
-        <collection property="menuList" ofType="com.unki11.bestorder.menu.domain.Menu">
+        <collection property="menuList" ofType="com.unki11.bestorder.menu.domain.Menu" notNullColumn="menu_id">
             <id property="menuId" column="menu_id" />
             <result property="menuGrpId" column="menu_grp_id" />
             <result property="menuName" column="menu_name" />
