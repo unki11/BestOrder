@@ -9,6 +9,7 @@ import StoreDetail from './StoreDetail.tsx';
 import TableManagement from './TableManagement.tsx';
 import MenuManagement from './MenuManagement.tsx';
 import Order from './Order.tsx';
+import TableOrder from './TableOrder.tsx';
 import './App.css';
 
 function App() {
@@ -26,6 +27,7 @@ function App() {
           <Route path="/TableManagement/:storeId" element={<TableManagement />} />
           <Route path="/MenuManagement/:storeId" element={<MenuManagement />} />
           <Route path="/Order/:storeId" element={<Order />} />
+          <Route path="/TableOrder/:storeId" element={<TableOrder />} />
         </Route>
       </Routes>
     </BrowserRouter>

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.unki11.bestorder.order.repository.OrderRepository">
+
+    <resultMap id="TableGrpWithOrderMap" type="com.unki11.bestorder.order.dto.TableGrpDto">
+        <id property="tableGrpId" column="table_grp_id" />
+        <result property="storeId" column="store_id" />
+        <result property="tableGrpName" column="table_grp_name" />
+        <result property="tableGrpPosition" column="table_grp_position" />
+
+        <collection property="tableList" ofType="com.unki11.bestorder.order.dto.OrderTableDto" notNullColumn="table_id">
+            <id property="tableId" column="table_id" />
+            <result property="orderId" column="order_id" />
+            <result property="tableGrpId" column="table_grp_id" />
+            <result property="storeId" column="store_id" />
+            <result property="tableNumber" column="table_number" />
+            <result property="tableName" column="table_name" />
+            <result property="tablePosition" column="table_position" />
+            <result property="capacity" column="capacity" />
+            <result property="status" column="status" />
+            <result property="totalPrice" column="total_price" />
+        </collection>
+    </resultMap>
+
+    <select id="selectTablesWithOrderAmount" parameterType="long" resultMap="TableGrpWithOrderMap">
+        SELECT
+        tg.table_grp_id,
+        tg.store_id,
+        tg.table_grp_name,
+        tg.table_grp_position,
+        t.table_id,
+        o.order_id,
+        t.table_number,
+        t.table_name,
+        t.table_position,
+        t.capacity,
+        t.status,
+        COALESCE(SUM(oi.unit_price), 0) AS total_price
+        FROM table_grp tg
+        LEFT JOIN (
+        tables t
+        INNER JOIN orders o
+        ON t.table_id = o.table_id
+        AND t.store_id = o.store_id
+        AND DATE(o.order_time) = CURDATE()
+        AND o.order_status IN ('0', '1')
+        ) ON tg.table_grp_id = t.table_grp_id AND tg.store_id = t.store_id
+        LEFT JOIN order_items oi
+        ON o.order_id = oi.order_id
+        WHERE tg.store_id = #{storeId}
+        GROUP BY
+        tg.table_grp_id,
+        tg.store_id,
+        tg.table_grp_name,
+        tg.table_grp_position,
+        t.table_id,
+        o.order_id,
+        t.table_number,
+        t.table_name,
+        t.table_position,
+        t.capacity,
+        t.status
+        ORDER BY
+        tg.table_grp_position ASC,
+        t.table_position ASC
+    </select>
+
+</mapper>
