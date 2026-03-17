@@ -1,11 +1,12 @@
 package com.unki11.bestorder.order.service;
 
-import com.unki11.bestorder.order.dto.TableGrpDto;
+import com.unki11.bestorder.order.dto.OrderItemRequestDto;
+import com.unki11.bestorder.order.dto.OrderRequestDto;
+import com.unki11.bestorder.order.dto.OrderResponseDto;
 import com.unki11.bestorder.order.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -13,14 +14,32 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
 
-    /**
-     * 매장별 테이블 현황 및 주문 금액 조회
-     * (테이블 그룹 내부에 OrderTableDto 리스트가 포함된 형태 반환)
-     */
-    @Transactional(readOnly = true)
-    public List<TableGrpDto> getTablesWithOrderAmount(Long storeId) {
-        return orderRepository.selectTablesWithOrderAmount(storeId);
+    // 기존 상세 조회
+    public OrderResponseDto getOrderDetails(Long orderId) {
+        return orderRepository.selectOrderDetails(orderId);
     }
 
-    // 주문 생성, 결제, 합산, 이동 등의 비즈니스 로직은 추후 이쪽에 추가하시면 됩니다.
+    // 주문 저장 로직 (신규 및 추가)
+    @Transactional
+    public Long saveOrder(OrderRequestDto request) {
+        if (request.getOrderId() == null) {
+            // 1. 신규 주문 처리
+            orderRepository.insertOrder(request); // 실행 후 request.orderId에 PK값 세팅됨
+        } else {
+            // 2. 추가/변경 주문 처리
+            orderRepository.updateOrder(request);
+            // 깔끔한 갱신을 위해 기존 아이템 날리기
+            orderRepository.deleteOrderItemsByOrderId(request.getOrderId());
+        }
+
+        // 3. 주문 아이템 등록
+        if (request.getItems() != null && !request.getItems().isEmpty()) {
+            for (OrderItemRequestDto item : request.getItems()) {
+                item.setOrderId(request.getOrderId()); // 생성/기존 orderId 매핑
+            }
+            orderRepository.insertOrderItems(request.getItems());
+        }
+
+        return request.getOrderId();
+    }
 }

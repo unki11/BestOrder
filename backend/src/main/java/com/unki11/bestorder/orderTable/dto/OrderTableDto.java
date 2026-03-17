@@ -1,4 +1,4 @@
-package com.unki11.bestorder.order.dto;
+package com.unki11.bestorder.orderTable.dto;
 
 import lombok.*;
 

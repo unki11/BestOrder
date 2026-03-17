@@ -2,67 +2,69 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.unki11.bestorder.order.repository.OrderRepository">
 
-    <resultMap id="TableGrpWithOrderMap" type="com.unki11.bestorder.order.dto.TableGrpDto">
-        <id property="tableGrpId" column="table_grp_id" />
-        <result property="storeId" column="store_id" />
-        <result property="tableGrpName" column="table_grp_name" />
-        <result property="tableGrpPosition" column="table_grp_position" />
+    <resultMap id="OrderResponseMap" type="com.unki11.bestorder.order.dto.OrderResponseDto">
+        <id property="orderId" column="order_id" />
+        <result property="tableId" column="table_id" />
+        <result property="tableName" column="table_name" />
+        <result property="orderStatus" column="order_status" />
+        <result property="totalAmount" column="total_amount" />
 
-        <collection property="tableList" ofType="com.unki11.bestorder.order.dto.OrderTableDto" notNullColumn="table_id">
-            <id property="tableId" column="table_id" />
-            <result property="orderId" column="order_id" />
-            <result property="tableGrpId" column="table_grp_id" />
-            <result property="storeId" column="store_id" />
-            <result property="tableNumber" column="table_number" />
-            <result property="tableName" column="table_name" />
-            <result property="tablePosition" column="table_position" />
-            <result property="capacity" column="capacity" />
-            <result property="status" column="status" />
-            <result property="totalPrice" column="total_price" />
+        <collection property="items" ofType="com.unki11.bestorder.order.dto.OrderItemDto" notNullColumn="menu_id">
+            <result property="menuId" column="menu_id" />
+            <result property="menuName" column="display_menu_name" />
+            <result property="quantity" column="quantity" />
+            <result property="unitPrice" column="unit_price" />
+            <result property="subtotal" column="subtotal" />
+            <result property="options" column="options" />
         </collection>
     </resultMap>
 
-    <select id="selectTablesWithOrderAmount" parameterType="long" resultMap="TableGrpWithOrderMap">
+    <select id="selectOrderDetails" parameterType="long" resultMap="OrderResponseMap">
         SELECT
-        tg.table_grp_id,
-        tg.store_id,
-        tg.table_grp_name,
-        tg.table_grp_position,
-        t.table_id,
         o.order_id,
-        t.table_number,
-        t.table_name,
-        t.table_position,
-        t.capacity,
-        t.status,
-        COALESCE(SUM(oi.unit_price), 0) AS total_price
-        FROM table_grp tg
-        LEFT JOIN (
-        tables t
-        INNER JOIN orders o
-        ON t.table_id = o.table_id
-        AND t.store_id = o.store_id
-        AND DATE(o.order_time) = CURDATE()
-        AND o.order_status IN ('0', '1')
-        ) ON tg.table_grp_id = t.table_grp_id AND tg.store_id = t.store_id
-        LEFT JOIN order_items oi
-        ON o.order_id = oi.order_id
-        WHERE tg.store_id = #{storeId}
-        GROUP BY
-        tg.table_grp_id,
-        tg.store_id,
-        tg.table_grp_name,
-        tg.table_grp_position,
+        o.order_status,
+        o.total_amount,
         t.table_id,
-        o.order_id,
-        t.table_number,
         t.table_name,
-        t.table_position,
-        t.capacity,
-        t.status
-        ORDER BY
-        tg.table_grp_position ASC,
-        t.table_position ASC
+        oi.menu_id,
+        COALESCE(m.menu_name, oi.menu_name) AS display_menu_name,
+        oi.quantity,
+        oi.unit_price,
+        oi.subtotal,
+        oi.options
+        FROM orders o
+        LEFT JOIN order_items oi ON o.order_id = oi.order_id
+        LEFT JOIN tables t ON o.table_id = t.table_id
+        LEFT JOIN menus m ON oi.menu_id = m.menu_id
+        WHERE o.order_id = #{orderId}
     </select>
+
+    <insert id="insertOrder" parameterType="com.unki11.bestorder.order.dto.OrderRequestDto" useGeneratedKeys="true" keyProperty="orderId">
+        INSERT INTO orders (table_id, store_id, order_number, order_status, total_amount, order_time)
+        VALUES (#{tableId}, #{storeId}, #{tableId}, '0', #{totalAmount}, CURRENT_TIMESTAMP)
+    </insert>
+
+    <update id="updateOrder" parameterType="com.unki11.bestorder.order.dto.OrderRequestDto">
+        UPDATE orders
+        SET total_amount = #{totalAmount}
+        WHERE order_id = #{orderId}
+    </update>
+
+    <delete id="deleteOrderItemsByOrderId" parameterType="long">
+        DELETE FROM order_items WHERE order_id = #{orderId}
+    </delete>
+
+    <insert id="insertOrderItems" parameterType="java.util.List">
+        INSERT INTO order_items (
+        order_id, menu_id, menu_name, quantity, unit_price, subtotal, options, created_at
+        )
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (
+            #{item.orderId}, #{item.menuId}, #{item.menuName}, #{item.quantity},
+            #{item.unitPrice}, #{item.subtotal}, IFNULL(#{item.options}, ''), CURRENT_TIMESTAMP
+            )
+        </foreach>
+    </insert>
 
 </mapper>
