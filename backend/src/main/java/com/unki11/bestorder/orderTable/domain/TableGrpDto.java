@@ -1,5 +1,6 @@
-package com.unki11.bestorder.order.dto;
+package com.unki11.bestorder.orderTable.domain;
 
+import com.unki11.bestorder.orderTable.dto.OrderTableDto;
 import lombok.*;
 import java.util.List;
 import java.util.ArrayList;
