@@ -35,7 +35,7 @@
         t.table_position,
         t.capacity,
         t.status,
-        COALESCE(SUM(oi.unit_price), 0) AS total_price
+        o.total_amount AS total_price
         FROM table_grp tg
         LEFT JOIN tables t
         ON tg.table_grp_id = t.table_grp_id

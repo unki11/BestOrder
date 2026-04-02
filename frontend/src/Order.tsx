@@ -25,17 +25,15 @@ interface MenuGrp {
   menuList: Menu[];
 }
 
-// 장바구니용 상태 인터페이스
 interface OrderItem {
   menuId: number;
   menuName: string;
-  price: number; // 백엔드의 unitPrice를 받아서 사용
+  price: number;
   quantity: number;
   options?: string;
   subtotal?: number;
 }
 
-// 주문 헤더 정보 인터페이스
 interface OrderInfo {
   orderId: number;
   tableId?: number;
@@ -47,28 +45,28 @@ const Order: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   
-  // URL에서 파라미터 가져오기
   const existingOrderId = searchParams.get('order_id');
-  const newTableId = searchParams.get('table_id'); // 신규 주문 시 테이블 번호 확보
+  const newTableId = searchParams.get('table_id'); 
   
-  // --- 상태 관리 ---
   const [groups, setGroups] = useState<MenuGrp[]>([]);
   const [selectedGrpId, setSelectedGrpId] = useState<number | null>(null);
   const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
   const [orderInfo, setOrderInfo] = useState<OrderInfo | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
-  // --- 데이터 불러오기 ---
+  // +++ 추가된 부분: QR 모달 상태 관리 +++
+  const [isQrModalOpen, setIsQrModalOpen] = useState<boolean>(false);
+  const [qrImageData, setQrImageData] = useState<string | null>(null);
+  const [qrLoading, setQrLoading] = useState<boolean>(false);
+
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        // 1. 메뉴 레이아웃 로드
         const menuResponse = await axios.get(`http://localhost:8080/api/menu/store/1`);
         setGroups(menuResponse.data);
         if (menuResponse.data.length > 0) setSelectedGrpId(menuResponse.data[0].menuGrpId);
 
-        // 2. 파라미터에 order_id가 있다면 기존 주문 정보 로드
         if (existingOrderId) {
           const orderResponse = await axios.get(`http://localhost:8080/api/orders/${existingOrderId}`);
           const orderData = orderResponse.data;
@@ -81,11 +79,10 @@ const Order: React.FC = () => {
               orderStatus: orderData.orderStatus,
             });
 
-            // 백엔드의 DTO(OrderItemDto)를 프론트엔드 상태에 맞게 변환
             const loadedItems: OrderItem[] = orderData.items.map((item: any) => ({
               menuId: item.menuId,
               menuName: item.menuName,
-              price: item.unitPrice, // unitPrice를 price로 맵핑
+              price: item.unitPrice, 
               quantity: item.quantity,
               options: item.options,
               subtotal: item.subtotal
@@ -106,8 +103,6 @@ const Order: React.FC = () => {
   }, [existingOrderId]);
 
   // --- 이벤트 핸들러 ---
-
-  // 1. 메뉴 클릭 핸들러 (장바구니 추가)
   const handleMenuClick = (menu: Menu) => {
     setOrderItems(prevItems => {
       const existingItem = prevItems.find(item => item.menuId === menu.menuId);
@@ -123,14 +118,12 @@ const Order: React.FC = () => {
 
   const totalPrice = orderItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
 
-  // 2. 취소 핸들러
   const handleCancel = () => {
     if(window.confirm("주문을 취소하시겠습니까?")) {
-      navigate(-1); // 이전 페이지(테이블 맵)로 이동
+      navigate(-1); 
     }
   };
 
-  // 3. 결제 버튼
   const handlePayment = () => {
     if (orderItems.length === 0) return alert("주문할 메뉴를 선택해주세요.");
     navigate('/payment', { 
@@ -143,15 +136,13 @@ const Order: React.FC = () => {
     });
   };
 
-  // 4. 주문 버튼 클릭 시 DB 저장 API 호출 (신규 Insert / 기존 Update)
   const handleOrder = async () => {
     if (orderItems.length === 0) return alert("주문할 메뉴를 선택해주세요.");
 
-    // DTO 구조에 맞춰 Payload 작성
     const payload = {
-      orderId: orderInfo?.orderId || null, // 없으면 null (신규 주문)
-      tableId: orderInfo?.tableId || (newTableId ? Number(newTableId) : null), // 기존 정보나 URL 파라미터에서 추출
-      storeId: groups[0]?.storeId || 1, // 현재 매장 ID
+      orderId: orderInfo?.orderId || null, 
+      tableId: orderInfo?.tableId || (newTableId ? Number(newTableId) : null), 
+      storeId: groups[0]?.storeId || 1, 
       totalAmount: totalPrice,
       items: orderItems.map(item => ({
         menuId: item.menuId,
@@ -164,15 +155,38 @@ const Order: React.FC = () => {
     };
 
     try {
-      // POST 요청으로 신규/업데이트 일괄 처리
       await axios.post('http://localhost:8080/api/orders', payload);
       alert("주문이 성공적으로 접수되었습니다.");
-      
-      // 처리 완료 후 이전 화면(테이블 맵)으로 복귀
       navigate(-1); 
     } catch (error) {
       console.error("주문 처리 중 오류 발생:", error);
       alert("주문을 처리하는 도중 문제가 발생했습니다.");
+    }
+  };
+
+  // +++ 추가된 부분: QR 코드 불러오기 API 호출 핸들러 +++
+  const handleShowQr = async () => {
+    const targetTableId = orderInfo?.tableId || newTableId;
+    const storeId = groups[0]?.storeId || 1;
+
+    if (!targetTableId) {
+      alert("테이블 정보가 없습니다. 테이블을 먼저 지정해주세요.");
+      return;
+    }
+
+    setIsQrModalOpen(true);
+    setQrLoading(true);
+
+    try {
+      // 백엔드에서 만든 이미지 리턴 API 호출 (응답값이 순수 문자열 형태)
+      const response = await axios.get(`http://localhost:8080/api/qrcode/store/${storeId}/table/${targetTableId}`);
+      setQrImageData(response.data); 
+    } catch (error) {
+      console.error("QR 코드를 불러오는 데 실패했습니다.", error);
+      alert("QR 코드를 불러오지 못했습니다. 백엔드 서버를 확인해주세요.");
+      setIsQrModalOpen(false);
+    } finally {
+      setQrLoading(false);
     }
   };
 
@@ -181,10 +195,11 @@ const Order: React.FC = () => {
   if (loading) return <div className="flex h-screen items-center justify-center text-xl font-bold">로딩 중...</div>;
 
   return (
-    <div className="flex h-screen w-full bg-gray-100 p-4 gap-4 select-none">
+    <div className="flex h-screen w-full bg-gray-100 p-4 gap-4 select-none relative">
       
       {/* ================= 좌측 구역 ================= */}
       <div className="flex flex-col w-1/3 h-full gap-4">
+        {/* ... (기존 좌측 구역 코드와 동일) ... */}
         <div className="flex-1 bg-white border-4 border-orange-400 rounded-xl flex flex-col overflow-hidden shadow-md">
           <div className="bg-orange-400 text-white font-bold py-3 text-center text-xl flex flex-col">
             <span>주문 내역 {orderInfo?.orderId && "(추가 주문)"}</span>
@@ -193,7 +208,6 @@ const Order: React.FC = () => {
                 테이블: {orderInfo.tableName}
               </span>
             )}
-            {/* 신규 주문 시 파라미터로 넘어온 table_id 표시 (임시 확인용) */}
             {!orderInfo?.tableName && newTableId && (
               <span className="text-sm font-medium bg-orange-600 rounded-full mx-auto px-3 mt-1 py-0.5">
                 선택된 테이블 ID: {newTableId}
@@ -230,6 +244,7 @@ const Order: React.FC = () => {
 
       {/* ================= 우측 구역 ================= */}
       <div className="flex flex-col w-2/3 h-full gap-4">
+        {/* ... (기존 우측 구역 카테고리/메뉴 코드와 동일) ... */}
         <div className="h-1/4 bg-white border-4 border-blue-600 rounded-xl shadow-md flex flex-col overflow-hidden">
           <div className="bg-blue-600 text-white font-bold py-2 text-center">주문 분류</div>
           <div className="flex-1 grid grid-cols-4 gap-2 p-3 bg-blue-50 overflow-y-auto">
@@ -252,7 +267,6 @@ const Order: React.FC = () => {
         <div className="h-3/4 flex gap-4">
           <div className="flex-1 bg-white border-4 border-green-500 rounded-xl shadow-md flex flex-col overflow-hidden">
             <div className="bg-green-500 text-white font-bold py-2 text-center">주문 메뉴</div>
-            
             <div className="flex-1 grid grid-cols-3 gap-3 p-4 bg-green-50 overflow-y-auto content-start">
                 {!selectedGroup || !selectedGroup.menuList || selectedGroup.menuList.length === 0 ? (
                 <div className="col-span-3 flex flex-col items-center justify-center h-full text-gray-400 gap-2 opacity-70">
@@ -284,9 +298,47 @@ const Order: React.FC = () => {
             <button onClick={handleOrder} className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xl rounded-xl shadow-md border-b-4 border-indigo-800 active:border-b-0 active:translate-y-1 transition-all">
               {orderInfo?.orderId ? "추가 주문" : "주문"}
             </button>
+            {/* +++ 추가된 부분: QR 버튼 +++ */}
+            <button onClick={handleShowQr} className="flex-1 bg-teal-500 hover:bg-teal-600 text-white font-black text-xl rounded-xl shadow-md border-b-4 border-teal-700 active:border-b-0 active:translate-y-1 transition-all flex flex-col items-center justify-center">
+              <span className="text-sm mb-1">테이블</span>
+              QR 보기
+            </button>
           </div>
         </div>
       </div>
+
+      {/* +++ 추가된 부분: QR 코드 모달 (팝업) +++ */}
+      {isQrModalOpen && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm rounded-xl">
+          <div className="bg-white p-8 rounded-2xl shadow-2xl flex flex-col items-center gap-6 transform transition-all scale-100">
+            <h2 className="text-3xl font-black text-gray-800">
+              {orderInfo?.tableName ? `${orderInfo.tableName} QR` : `테이블 ${newTableId} QR`}
+            </h2>
+            
+            <div className="w-64 h-64 flex items-center justify-center border-4 border-gray-200 rounded-xl bg-gray-50 p-4">
+              {qrLoading ? (
+                <div className="text-gray-500 font-bold animate-pulse text-lg">생성 중...</div>
+              ) : qrImageData ? (
+                <img src={qrImageData} alt="테이블 QR 코드" className="w-full h-full object-contain" />
+              ) : (
+                <div className="text-red-500 font-bold">이미지 로드 실패</div>
+              )}
+            </div>
+
+            <p className="text-gray-500 text-center font-medium">
+              고객님이 이 QR 코드를 스캔하면<br/>휴대폰으로 바로 주문할 수 있습니다.
+            </p>
+
+            <button 
+              onClick={() => setIsQrModalOpen(false)}
+              className="w-full bg-gray-800 hover:bg-gray-900 text-white font-bold text-xl py-4 rounded-xl shadow-md active:scale-95 transition-all"
+            >
+              닫기
+            </button>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };

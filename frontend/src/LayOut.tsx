@@ -16,6 +16,7 @@ const Layout = () => {
         <Link to="/MenuManagement/1">메뉴 관리</Link><br/>
         <Link to="/Order/1?order_id=1">주문 관리</Link><br/>
         <Link to="/TableOrder/1">테이블 주문</Link><br/>
+        <Link to="/OrderMobile/1?table_id=1">모바일 주문</Link><br/>
       </nav>
       <hr />
       <main>

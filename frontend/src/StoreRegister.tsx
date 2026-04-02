@@ -40,7 +40,7 @@ const StoreRegister: React.FC = () => {
       // 백엔드의 @PostMapping("/api/stores")와 연결
       await axios.post('http://localhost:8080/api/store', form);
       alert('매장이 성공적으로 등록되었습니다!');
-      navigate('/stores'); // 매장 목록 페이지로 이동
+      navigate('/Store'); // 매장 목록 페이지로 이동
     } catch (error) {
       console.error('Registration error:', error);
       alert('매장 등록에 실패했습니다. 입력 값을 확인해주세요.');
