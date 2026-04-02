@@ -2,6 +2,7 @@ package com.unki11.bestorder.table.service;
 
 import com.unki11.bestorder.table.domain.Table;
 import com.unki11.bestorder.table.domain.TableGrp;
+import com.unki11.bestorder.table.domain.TableQrCode;
 import com.unki11.bestorder.table.repository.TableRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -11,6 +12,8 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class TableService {
+
+    private final TableQrCodeService tableQrCodeService;
 
     private final TableRepository tableRepository;
 
@@ -29,6 +32,12 @@ public class TableService {
     @Transactional
     public void saveTable(Table table) {
         tableRepository.upsertTable(table);
+
+        TableQrCode tableQrCode = new TableQrCode();
+        tableQrCode.setTableId(table.getTableId());
+        tableQrCode.setStoreId(table.getStoreId());
+
+        tableQrCodeService.generateTableQrCode(tableQrCode);
     }
 
     // 상태만 변경 (예: 입장, 퇴장)

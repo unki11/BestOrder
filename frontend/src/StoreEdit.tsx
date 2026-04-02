@@ -47,7 +47,7 @@ const StoreEdit: React.FC = () => {
     try {
       await axios.put(`http://localhost:8080/api/store/${storeId}`, store);
       alert('매장 정보가 성공적으로 수정되었습니다.');
-      navigate(`/stores/${storeId}`); // 상세 페이지로 이동
+      navigate(`/Store/${storeId}`); // 상세 페이지로 이동
     } catch (error) {
       alert('수정 중 오류가 발생했습니다.');
     }

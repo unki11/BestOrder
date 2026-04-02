@@ -10,6 +10,7 @@ import TableManagement from './TableManagement.tsx';
 import MenuManagement from './MenuManagement.tsx';
 import Order from './Order.tsx';
 import TableOrder from './TableOrder.tsx';
+import OrderMobile from './OrderMobile.tsx';
 import './App.css';
 
 function App() {
@@ -28,6 +29,7 @@ function App() {
           <Route path="/MenuManagement/:storeId" element={<MenuManagement />} />
           <Route path="/Order/:storeId" element={<Order />} />
           <Route path="/TableOrder/:storeId" element={<TableOrder />} />
+          <Route path="/OrderMobile/:table_id" element={<OrderMobile />} />
         </Route>
       </Routes>
     </BrowserRouter>
