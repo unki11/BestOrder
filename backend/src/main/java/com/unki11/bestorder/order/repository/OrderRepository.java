@@ -4,6 +4,8 @@ import com.unki11.bestorder.order.dto.OrderRequestDto;
 import com.unki11.bestorder.order.dto.OrderItemRequestDto;
 import com.unki11.bestorder.order.dto.OrderResponseDto;
 import org.apache.ibatis.annotations.Mapper;
+import org.springframework.data.repository.query.Param;
+
 import java.util.List;
 
 @Mapper
@@ -11,6 +13,7 @@ public interface OrderRepository {
     // 기존 상세 조회
     OrderResponseDto selectOrderDetails(Long orderId);
 
+    Long findActiveOrderId(@Param("tableId") Long tableId, @Param("storeId") Long storeId);
     // 신규 주문 생성 (생성된 order_id를 DTO에 반환받음)
     int insertOrder(OrderRequestDto requestDto);
 
@@ -22,4 +25,6 @@ public interface OrderRepository {
 
     // 주문 아이템 다중 삽입 (Batch Insert)
     int insertOrderItems(List<OrderItemRequestDto> items);
+
+    int addOrderTotalAmount(OrderRequestDto requestDto);
 }

@@ -41,7 +41,7 @@
 
     <insert id="insertOrder" parameterType="com.unki11.bestorder.order.dto.OrderRequestDto" useGeneratedKeys="true" keyProperty="orderId">
         INSERT INTO orders (table_id, store_id, order_number, order_status, total_amount, order_time)
-        VALUES (#{tableId}, #{storeId}, #{tableId}, '0', #{totalAmount}, CURRENT_TIMESTAMP)
+        VALUES (#{tableId}, #{storeId}, CURRENT_TIMESTAMP, '0', #{totalAmount}, CURRENT_TIMESTAMP)
     </insert>
 
     <update id="updateOrder" parameterType="com.unki11.bestorder.order.dto.OrderRequestDto">
@@ -66,5 +66,21 @@
             )
         </foreach>
     </insert>
+
+    <select id="findActiveOrderId" resultType="java.lang.Long">
+        SELECT order_id
+        FROM orders
+        WHERE table_id = #{tableId}
+        AND store_id = #{storeId}
+        AND order_status = '0'
+        AND DATE(order_time) = CURDATE()
+        LIMIT 1
+    </select>
+
+    <update id="addOrderTotalAmount" parameterType="com.unki11.bestorder.order.dto.OrderRequestDto">
+        UPDATE orders
+        SET total_amount = total_amount + #{totalAmount}
+        WHERE order_id = #{orderId}
+    </update>
 
 </mapper>
