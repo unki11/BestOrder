@@ -42,4 +42,32 @@ public class OrderService {
 
         return request.getOrderId();
     }
+
+    // [추가] 모바일 주문 처리 로직 (합석/추가주문 고려)
+    @Transactional
+    public Long processMobileOrder(OrderRequestDto request) {
+        // 1. 해당 테이블의 오늘 활성화된(status '0') 주문이 있는지 확인
+        Long activeOrderId = orderRepository.findActiveOrderId(request.getTableId(), request.getStoreId());
+
+        if (activeOrderId != null) {
+            // 2-1. 기존 주문이 존재하는 경우 (추가 주문)
+            request.setOrderId(activeOrderId);
+            // 기존 총 금액에 이번 주문 금액을 더함 (+)
+            orderRepository.addOrderTotalAmount(request);
+        } else {
+            // 2-2. 기존 주문이 없는 경우 (신규 주문)
+            // insertOrder 실행 후 request.orderId에 새로 생성된 PK값이 자동으로 세팅됨 (useGeneratedKeys)
+            orderRepository.insertOrder(request);
+        }
+
+        // 3. 주문 아이템 등록 (이번에 새로 담은 메뉴들만 추가 삽입)
+        if (request.getItems() != null && !request.getItems().isEmpty()) {
+            for (OrderItemRequestDto item : request.getItems()) {
+                item.setOrderId(request.getOrderId()); // 생성되거나 찾아온 orderId 매핑
+            }
+            orderRepository.insertOrderItems(request.getItems());
+        }
+
+        return request.getOrderId();
+    }
 }

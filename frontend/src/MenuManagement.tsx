@@ -119,6 +119,20 @@ const MenuManagement: React.FC = () => {
     } catch (error) { alert("변경 실패"); }
   };
 
+  // --- 메뉴 그룹 삭제 추가 ---
+  const handleDeleteGroup = async (menuGrpId: number) => {
+    if (!window.confirm("이 메뉴 그룹을 삭제하시겠습니까?")) return;
+    try {
+      await axios.delete(`http://localhost:8080/api/menu/group/${menuGrpId}?userId=1`);
+      
+      // 삭제한 그룹이 현재 선택된 그룹이라면 선택 상태 초기화
+      if (selectedGrpId === menuGrpId) {
+        setSelectedGrpId(null);
+      }
+      fetchMenuLayout();
+    } catch (error) { alert("그룹 삭제 실패"); }
+  };
+
   const handleDeleteMenu = async (menuId: number) => {
     if(!window.confirm("삭제하시겠습니까?")) return;
     try {
@@ -143,7 +157,7 @@ const MenuManagement: React.FC = () => {
             value={inputStoreId}
             onChange={(e) => setInputStoreId(e.target.value)}
           />
-        </div>
+        </div>  
         <button onClick={fetchMenuLayout} className="mt-5 px-10 py-3.5 bg-indigo-600 text-white rounded-xl font-black hover:bg-indigo-700 transition-all">조회</button>
       </div>
 
@@ -162,14 +176,26 @@ const MenuManagement: React.FC = () => {
                   <button onClick={() => handleRenameGroup(group)} className="text-indigo-600 font-bold">✓</button>
                 </div>
               ) : (
-                <button
-                  onClick={() => setSelectedGrpId(group.menuGrpId!)}
-                  className={`w-full text-left px-5 py-4 rounded-2xl font-bold transition-all ${
-                    selectedGrpId === group.menuGrpId ? 'bg-indigo-600 text-white shadow-xl' : 'bg-white text-gray-500 hover:bg-indigo-50 border border-transparent shadow-sm'
-                  }`}
-                >
-                  {group.menuGrpName}
-                </button>
+                <>
+                  <button
+                    onClick={() => setSelectedGrpId(group.menuGrpId!)}
+                    className={`w-full text-left px-5 py-4 rounded-2xl font-bold transition-all ${
+                      selectedGrpId === group.menuGrpId ? 'bg-indigo-600 text-white shadow-xl' : 'bg-white text-gray-500 hover:bg-indigo-50 border border-transparent shadow-sm'
+                    }`}
+                  >
+                    {group.menuGrpName}
+                  </button>
+                  {/* 메뉴 그룹 삭제 X 버튼 */}
+                  <button 
+                    onClick={(e) => {
+                      e.stopPropagation(); // 버튼 클릭 시 선택 이벤트 방지
+                      handleDeleteGroup(group.menuGrpId!);
+                    }} 
+                    className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full text-[10px] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all z-20 shadow-md"
+                  >
+                    ✕
+                  </button>
+                </>
               )}
             </div>
           ))}
@@ -236,7 +262,7 @@ const MenuManagement: React.FC = () => {
                 ) : (
                   /* 보기 모드 */
                   <div className="flex flex-col gap-2">
-                    <button onClick={() => handleDeleteMenu(menu.menuId!)} className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full text-[10px] opacity-0 group-hover:opacity-100 transition-all z-20">✕</button>
+                    <button onClick={() => handleDeleteMenu(menu.menuId!)} className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full text-[10px] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all z-20">✕</button>
                     <div className="w-full aspect-square bg-gray-50 rounded-xl mb-1 flex items-center justify-center text-gray-300 text-[10px] overflow-hidden">
                       {menu.imageUrl ? <img src={menu.imageUrl} className="w-full h-full object-cover" alt="" /> : "Image"}
                     </div>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams, useParams } from 'react-router-dom';
 
 // --- 인터페이스 정의 ---
 interface Menu {
@@ -43,7 +43,8 @@ interface OrderHistoryResponse {
 const OrderMobile: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  
+
+  const { storeId } = useParams<{ storeId: string }>();
   const newTableId = searchParams.get('table_id'); 
   
   const [groups, setGroups] = useState<MenuGrp[]>([]);
@@ -67,7 +68,7 @@ const OrderMobile: React.FC = () => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const menuResponse = await axios.get(`http://localhost:8080/api/menu/store/1`);
+        const menuResponse = await axios.get(`http://localhost:8080/api/menu/store/${storeId}`);
         setGroups(menuResponse.data);
         if (menuResponse.data.length > 0) {
           setSelectedGrpId(menuResponse.data[0].menuGrpId);
@@ -131,7 +132,7 @@ const OrderMobile: React.FC = () => {
     };
 
     try {
-      await axios.post('http://localhost:8080/api/orders', payload);
+      await axios.post('http://localhost:8080/api/orders/mobile', payload);
       alert("주문이 성공적으로 접수되었습니다.");
       setOrderItems([]); // 장바구니 비우기
       setIsCartOpen(false); // 장바구니 닫기

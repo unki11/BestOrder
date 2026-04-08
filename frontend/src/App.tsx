@@ -29,7 +29,7 @@ function App() {
           <Route path="/MenuManagement/:storeId" element={<MenuManagement />} />
           <Route path="/Order/:storeId" element={<Order />} />
           <Route path="/TableOrder/:storeId" element={<TableOrder />} />
-          <Route path="/OrderMobile/:table_id" element={<OrderMobile />} />
+          <Route path="/OrderMobile/:storeId" element={<OrderMobile />} />
         </Route>
       </Routes>
     </BrowserRouter>
